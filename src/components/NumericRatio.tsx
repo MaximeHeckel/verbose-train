@@ -13,9 +13,8 @@ export const NumericRatio = ({
   isLoading,
 }: NumericRatioProps) => {
   return (
-    <p className={styles.ratio}>
-      1 {isLoading ? "..." : tokenSymbol} ≈{" "}
-      {isLoading ? "..." : formatTokenPrice(unitPrice || 0)} USD
+    <p data-loading={isLoading} className={styles.ratio}>
+      1 {tokenSymbol} ≈ {formatTokenPrice(unitPrice || 0)} USD
     </p>
   );
 };

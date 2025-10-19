@@ -1,10 +1,4 @@
 .page {
-  --gray-rgb: 255, 255, 255;
-  --gray-alpha-200: rgba(var(--gray-rgb), 0.145);
-  --gray-alpha-100: rgba(var(--gray-rgb), 0.06);
-
-  --button-primary-hover: #ccc;
-  --button-secondary-hover: #1a1a1a;
   min-height: 100svh;
   font-family: var(--font-geist-sans);
 }
@@ -18,23 +12,42 @@
 }
 
 .card {
+  --primary-font-color: white;
+  --secondary-font-color: oklch(66.65% 0.04 262.4);
   --card-background: oklch(16.75% 0.011 262.4);
   --result-background: oklch(13.5% 0.011 262.4);
-  --card-border: oklch(24.84% 0.018 262.4);
-  --card-asset-color: oklch(41.6% 0.035 262.4);
+  --card-foreground: oklch(24.84% 0.018 262.4);
+  --asset-color: oklch(41.6% 0.035 262.4);
+  --accent-color: oklch(0.5731 0.2145 262.4);
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 8px;
   border-radius: 20px;
   background-color: var(--card-background);
-  border: 1px solid var(--card-border);
+  border: 1px solid var(--card-foreground);
   width: 460px;
   height: fit-content;
+  overflow: hidden;
 
   @media (max-width: 600px) {
     width: 97dvw;
   }
+}
+
+.cardHeader {
+  padding: 8px 12px;
+  background-color: oklch(from var(--card-foreground) calc(l - 0.025) c h / 1);
+  border-bottom: 1px solid var(--card-foreground);
+
+  h1 {
+    font-size: 14px;
+    font-weight: 500;
+    color: oklch(from var(--secondary-font-color) l c h / 0.8);
+  }
+}
+
+.cardContent {
+  padding: 8px;
 }
 
 .numberInputWrapper {
@@ -45,51 +58,64 @@
   gap: 8px;
   padding-left: 8px;
   padding-bottom: 8px;
-  color: var(--card-asset-color);
-}
+  color: var(--asset-color);
 
-.numberInputWrapper label {
-  cursor: pointer;
-  display: flex;
-}
-
-.numberInput {
-  padding: 8px 12px;
-  font-size: 1rem;
-  border-radius: 12px;
-  border: none;
-  background-color: var(--card-border);
-  color: white;
-  outline: none;
-  border: 2px solid transparent;
-
-  &::-webkit-outer-spin-button,
-  &::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-  appearance: textfield;
-  -moz-appearance: textfield;
-  transition: background-color 0.2s ease-in-out;
-
-  &:hover {
-    background-color: oklch(from var(--card-border) calc(l + 0.1) c h / 1);
+  label {
+    cursor: pointer;
+    display: flex;
   }
 
-  &:focus-visible {
-    border: 2px solid #0070f3;
+  input {
+    padding: 8px 12px;
+    margin: 8px 0;
+    width: 100%;
+    font-size: 20px;
+    font-weight: 500;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    border-radius: 12px;
+    border: none;
+    background-color: var(--card-foreground);
+    color: white;
+    outline: none;
+    border: 2px solid transparent;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    appearance: textfield;
+    -moz-appearance: textfield;
+    transition: background-color 0.2s ease-in-out;
+
+    &::placeholder {
+      text-align: right;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--asset-color);
+    }
+
+    &:focus-visible {
+      border: 2px solid var(--accent-color);
+    }
+
+    &[data-error="true"] {
+      border: 2px solid red;
+    }
   }
 }
 
 .resultWrapper {
   height: 112px;
-  border: 1px solid var(--card-border);
+  border: 1px solid var(--card-foreground);
   border-radius: 12px;
   padding: 8px 12px;
   background-color: var(--result-background);
 }
 
 .numericResult {
+  font-family: var(--font-geist-mono);
   color: #ffffff;
   font-size: 36px;
   font-variant-numeric: tabular-nums;
@@ -98,26 +124,36 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-height: 47px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
 
-  &[data-hidden="true"] {
-    opacity: 0;
-    width: 0;
-    height: 0;
-    overflow: hidden;
+  &[data-loading="true"] {
+    opacity: 0.3;
+    transform: scale(0.95);
   }
 }
 
 .ratio {
-  color: var(--card-asset-color);
+  color: var(--asset-color);
+  font-variant-numeric: tabular-nums;
   font-size: 14px;
   font-weight: 400;
   text-align: right;
   display: block;
+  transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
+  align-self: flex-end;
+  &[data-loading="true"] {
+    opacity: 0.3;
+    transform: scale(0.95);
+  }
 }
 
 .separator {
   position: relative;
-  color: var(--card-asset-color);
+  color: var(--asset-color);
 }
 
 .separatorIcon {
@@ -128,7 +164,7 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background-color: var(--card-border);
+  background-color: var(--card-foreground);
   border: 3px solid var(--card-background);
   display: flex;
   align-items: center;
@@ -142,30 +178,39 @@
   font-weight: 600;
   border-radius: 12px;
   border: none;
-  background-color: var(--card-border);
+  background-color: var(--card-foreground);
   color: white;
   outline: none;
   border: 2px solid transparent;
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
+  width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
   &:hover {
-    background-color: oklch(from var(--card-border) calc(l + 0.1) c h / 1);
+    background-color: oklch(from var(--card-foreground) calc(l + 0.1) c h / 1);
   }
 
   &:focus-visible {
-    border: 2px solid #0070f3;
+    border: 2px solid var(--accent-color);
   }
 }
 
 .SelectIcon {
   color: white;
+  width: 24px;
+  height: 24px;
 }
 
 .SelectContent {
   overflow: hidden;
-  background-color: white;
-  border-radius: 6px;
+  width: 170px;
+  border-radius: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: var(--card-foreground);
   box-shadow: 0px 10px 38px -10px rgba(22, 23, 24, 0.35),
     0px 10px 20px -15px rgba(22, 23, 24, 0.2);
   z-index: 1000;
@@ -178,18 +223,18 @@
 .SelectItem {
   font-size: 13px;
   line-height: 1;
-  color: black;
-  border-radius: 3px;
+  color: white;
+  border-radius: 8px;
   display: flex;
   align-items: center;
-  height: 25px;
-  padding: 0 35px 0 25px;
+  padding: 12px 8px 12px 8px;
   position: relative;
   user-select: none;
 }
 
 .SelectItem[data-highlighted] {
   outline: none;
-  background-color: blue;
+  cursor: pointer;
+  background-color: oklch(from var(--card-foreground) calc(l + 0.1) c h / 1);
   color: white;
 }

@@ -4,28 +4,19 @@ import { calculateFontSize, formatTokenPrice } from "@/utils";
 interface NumericResultProps {
   amount: number | null;
   isLoading: boolean;
-  usdAmount: string;
 }
 
-export const NumericResult = ({
-  amount,
-  isLoading,
-  usdAmount,
-}: NumericResultProps) => {
-  const isHidden =
-    !usdAmount || usdAmount === "" || parseFloat(usdAmount) === 0;
-
+export const NumericResult = ({ amount, isLoading }: NumericResultProps) => {
   const fontSize =
     amount != null
       ? `${calculateFontSize(formatTokenPrice(amount))}px`
       : "36px";
 
-  const displayValue =
-    !isLoading && amount != null ? formatTokenPrice(amount) : "...";
+  const displayValue = formatTokenPrice(amount || 0);
 
   return (
     <p
-      data-hidden={isHidden}
+      data-loading={isLoading}
       className={styles.numericResult}
       style={{ fontSize }}
     >

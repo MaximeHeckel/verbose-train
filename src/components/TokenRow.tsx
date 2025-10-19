@@ -8,7 +8,6 @@ interface TokenRowProps {
   tokenAmount: number | null;
   unitPrice: number | undefined;
   isLoading: boolean;
-  usdAmount: string;
   onTokenChange: (token: TokenType) => void;
   ariaLabel: string;
   placeholder: string;
@@ -19,7 +18,6 @@ export const TokenRow = ({
   tokenAmount,
   unitPrice,
   isLoading,
-  usdAmount,
   onTokenChange,
   ariaLabel,
   placeholder,
@@ -59,11 +57,7 @@ export const TokenRow = ({
           />
 
           <div>
-            <NumericResult
-              amount={tokenAmount}
-              isLoading={isLoading}
-              usdAmount={usdAmount}
-            />
+            <NumericResult amount={tokenAmount} isLoading={isLoading} />
           </div>
         </div>
         <NumericRatio

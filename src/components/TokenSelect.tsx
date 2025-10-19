@@ -1,5 +1,6 @@
 import * as Select from "@radix-ui/react-select";
 import styles from "@/styles/Home.module.css";
+import { IconChevronDown } from "./Icons";
 
 export type TokenType = { name: string; symbol: string; chainId: string };
 
@@ -27,7 +28,9 @@ export const TokenSelect = ({
     <Select.Root value={value} onValueChange={onChange}>
       <Select.Trigger aria-label={ariaLabel} className={styles.SelectTrigger}>
         <Select.Value placeholder={placeholder} />
-        <Select.Icon className={styles.SelectIcon}>{">"}</Select.Icon>
+        <Select.Icon className={styles.SelectIcon}>
+          <IconChevronDown />
+        </Select.Icon>
       </Select.Trigger>
       <Select.Content className={styles.SelectContent}>
         <Select.Viewport className={styles.SelectViewport}>
@@ -37,9 +40,7 @@ export const TokenSelect = ({
               value={token.symbol}
               className={styles.SelectItem}
             >
-              <Select.ItemText>
-                {token.name} ({token.symbol})
-              </Select.ItemText>
+              <Select.ItemText>{token.name}</Select.ItemText>
             </Select.Item>
           ))}
         </Select.Viewport>

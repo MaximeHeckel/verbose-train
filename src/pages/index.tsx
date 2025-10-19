@@ -81,16 +81,6 @@ type Action =
   | { type: "SET_USD_AMOUNT"; payload: string }
   | { type: "SET_SOURCE_TOKEN"; payload: TokenType }
   | { type: "SET_TARGET_TOKEN"; payload: TokenType }
-  | { type: "FETCH_BOTH_START" }
-  | {
-      type: "FETCH_BOTH_SUCCESS";
-      payload: {
-        sourceTokenInfo: Erc20AssetInfo;
-        targetTokenInfo: Erc20AssetInfo;
-        sourcePriceInfo: GetAssetPriceInfoResponse;
-        targetPriceInfo: GetAssetPriceInfoResponse;
-      };
-    }
   | { type: "FETCH_SOURCE_START" }
   | {
       type: "FETCH_SOURCE_SUCCESS";
@@ -107,7 +97,7 @@ type Action =
         targetPriceInfo: GetAssetPriceInfoResponse;
       };
     }
-  | { type: "FETCH_ERROR"; payload: string }
+  | { type: "ERROR"; payload: string }
   | { type: "CLEAR_RESULT_AMOUNTS" };
 
 export default function Home() {
@@ -120,40 +110,12 @@ export default function Home() {
       case "SET_TARGET_TOKEN":
         return { ...state, targetToken: action.payload };
 
-      case "FETCH_BOTH_START":
+      case "FETCH_SOURCE_START":
         return {
           ...state,
           sourceLoading: true,
-          targetLoading: true,
           error: null,
         };
-
-      case "FETCH_BOTH_SUCCESS":
-        const usdValue = parseFloat(state.usdAmount) || 0;
-        const sourceTokenAmount =
-          usdValue / action.payload.sourcePriceInfo.unitPrice;
-        const targetTokenAmount =
-          usdValue / action.payload.targetPriceInfo.unitPrice;
-        const swapRatio =
-          action.payload.sourcePriceInfo.unitPrice /
-          action.payload.targetPriceInfo.unitPrice;
-
-        return {
-          ...state,
-          sourceTokenInfo: action.payload.sourceTokenInfo,
-          targetTokenInfo: action.payload.targetTokenInfo,
-          sourcePriceInfo: action.payload.sourcePriceInfo,
-          targetPriceInfo: action.payload.targetPriceInfo,
-          sourceTokenAmount,
-          targetTokenAmount,
-          swapRatio,
-          sourceLoading: false,
-          targetLoading: false,
-          error: null,
-        };
-
-      case "FETCH_SOURCE_START":
-        return { ...state, sourceLoading: true, error: null };
 
       case "FETCH_SOURCE_SUCCESS":
         const usdValueSource = parseFloat(state.usdAmount) || 0;
@@ -175,7 +137,11 @@ export default function Home() {
         };
 
       case "FETCH_TARGET_START":
-        return { ...state, targetLoading: true, error: null };
+        return {
+          ...state,
+          targetLoading: true,
+          error: null,
+        };
 
       case "FETCH_TARGET_SUCCESS":
         const usdValueTarget = parseFloat(state.usdAmount) || 0;
@@ -196,7 +162,7 @@ export default function Home() {
           error: null,
         };
 
-      case "FETCH_ERROR":
+      case "ERROR":
         return {
           ...state,
           sourceLoading: false,
@@ -215,14 +181,6 @@ export default function Home() {
         return state;
     }
   };
-
-  /**
-   * TODO:
-   * - better select
-   * - better loading state UI
-   * - error handling UI
-   *
-   */
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -251,7 +209,7 @@ export default function Home() {
       });
     } catch (error) {
       dispatch({
-        type: "FETCH_ERROR",
+        type: "ERROR",
         payload: error instanceof Error ? error.message : "An error occurred",
       });
     }
@@ -282,21 +240,11 @@ export default function Home() {
       });
     } catch (error) {
       dispatch({
-        type: "FETCH_ERROR",
+        type: "ERROR",
         payload: error instanceof Error ? error.message : "An error occurred",
       });
     }
   }, []);
-
-  // Create a single debounced function that fetches both tokens
-  const debouncedFetchBothTokens = useMemo(
-    () =>
-      debounce((sourceToken: TokenType, targetToken: TokenType) => {
-        fetchSourceToken(sourceToken);
-        fetchTargetToken(targetToken);
-      }, 320),
-    [fetchSourceToken, fetchTargetToken]
-  );
 
   const handleSourceTokenChange = useCallback(
     (token: TokenType) => {
@@ -314,9 +262,23 @@ export default function Home() {
     [fetchTargetToken]
   );
 
+  const debouncedFetchBothTokens = useMemo(
+    () =>
+      debounce((sourceToken: TokenType, targetToken: TokenType) => {
+        fetchSourceToken(sourceToken);
+        fetchTargetToken(targetToken);
+      }, 400),
+    [fetchSourceToken, fetchTargetToken]
+  );
+
   const handleUsdAmountChange = useCallback(
     (value: string) => {
       dispatch({ type: "SET_USD_AMOUNT", payload: value });
+
+      if (parseFloat(value) === 0) {
+        return;
+      }
+
       debouncedFetchBothTokens(state.sourceToken, state.targetToken);
     },
     [debouncedFetchBothTokens, state.sourceToken, state.targetToken]
@@ -342,20 +304,19 @@ export default function Home() {
         className={`${styles.page} ${geistSans.variable} ${geistMono.variable}`}
       >
         <main className={styles.main}>
-          <Card>
+          <Card title="Token Conversation Explorer">
             <USDInput
               value={state.usdAmount}
               onChange={handleUsdAmountChange}
             />
             <TokenRow
+              ariaLabel="Source token"
+              placeholder="Source token"
               selectedToken={state.sourceToken}
               tokenAmount={state.sourceTokenAmount}
               unitPrice={state.sourcePriceInfo?.unitPrice}
               isLoading={state.sourceLoading}
-              usdAmount={state.usdAmount}
               onTokenChange={handleSourceTokenChange}
-              ariaLabel="Source token"
-              placeholder="Source token"
             />
             <div className={styles.separator}>
               <div className={styles.separatorIcon}>
@@ -363,14 +324,13 @@ export default function Home() {
               </div>
             </div>
             <TokenRow
+              ariaLabel="Target token"
+              placeholder="Target token"
               selectedToken={state.targetToken}
               tokenAmount={state.targetTokenAmount}
               unitPrice={state.targetPriceInfo?.unitPrice}
               isLoading={state.targetLoading}
-              usdAmount={state.usdAmount}
               onTokenChange={handleTargetTokenChange}
-              ariaLabel="Target token"
-              placeholder="Target token"
             />
           </Card>
         </main>
