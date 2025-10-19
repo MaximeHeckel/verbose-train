@@ -1,0 +1,15 @@
+.ratio {
+  color: var(--asset-color);
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+  font-weight: 400;
+  text-align: right;
+  display: block;
+  transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
+  align-self: flex-end;
+
+  &[data-loading="true"] {
+    opacity: 0.3;
+    transform: scale(0.95);
+  }
+}

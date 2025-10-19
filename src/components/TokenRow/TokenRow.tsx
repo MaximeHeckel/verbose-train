@@ -1,7 +1,9 @@
-import styles from "@/styles/Home.module.css";
-import { TokenSelect, TOKEN_LIST, TokenType } from "@/components/TokenSelect";
+import styles from "./TokenRow.module.css";
+import { TokenSelect } from "@/components/TokenSelect";
 import { NumericResult } from "@/components/NumericResult";
 import { NumericRatio } from "@/components/NumericRatio";
+import { TokenType } from "@/types";
+import { TOKEN_LIST } from "@/constants";
 
 interface TokenRowProps {
   selectedToken: TokenType;

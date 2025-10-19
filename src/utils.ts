@@ -50,6 +50,6 @@ export const calculateFontSize = (value: string): number => {
     return 36;
   }
 
-  const fontSize = 36 - (length - 7) * 2.5;
-  return Math.max(18, fontSize);
+  const fontSize = 36 - (length - 7) * 1.5;
+  return Math.max(12, fontSize);
 };

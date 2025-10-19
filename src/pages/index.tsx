@@ -1,19 +1,16 @@
 import Head from "next/head";
 import { Geist, Geist_Mono } from "next/font/google";
-import {
-  Erc20AssetInfo,
-  getAssetErc20ByChainAndSymbol,
-  getAssetPriceInfo,
-  GetAssetPriceInfoResponse,
-} from "@funkit/api-base";
+
 import styles from "@/styles/Home.module.css";
 import { useCallback, useEffect, useMemo, useReducer } from "react";
-import { TOKEN_LIST, TokenType } from "@/components/TokenSelect";
+import { TokenType } from "@/components/TokenSelect";
 import { IconSwap } from "@/components/Icons";
 import { USDInput } from "@/components/USDInput";
 import { TokenRow } from "@/components/TokenRow";
 import debounce from "lodash/debounce";
 import Card from "@/components/Card";
+import { initialState, reducer } from "@/state";
+import { getTokenData } from "@/api";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,172 +36,20 @@ const geistMono = Geist_Mono({
  * that points to where the token's smart contract is deployed on the blockchain.
  */
 
-const API_KEY = process.env.NEXT_PUBLIC_FUNKIT_API_KEY as string;
-
-if (!API_KEY) {
-  throw new Error("NEXT_PUBLIC_FUNKIT_API_KEY is not set");
-}
-
-type State = {
-  usdAmount: string;
-  sourceToken: TokenType;
-  targetToken: TokenType;
-  sourceTokenInfo: Erc20AssetInfo | null;
-  targetTokenInfo: Erc20AssetInfo | null;
-  sourcePriceInfo: GetAssetPriceInfoResponse | null;
-  targetPriceInfo: GetAssetPriceInfoResponse | null;
-  sourceTokenAmount: number | null;
-  targetTokenAmount: number | null;
-  swapRatio: number | null;
-  sourceLoading: boolean;
-  targetLoading: boolean;
-  error: string | null;
-};
-
-const initialState: State = {
-  usdAmount: "100",
-  sourceToken: TOKEN_LIST[0],
-  targetToken: TOKEN_LIST[1],
-  sourceTokenInfo: null,
-  targetTokenInfo: null,
-  sourcePriceInfo: null,
-  targetPriceInfo: null,
-  sourceTokenAmount: null,
-  targetTokenAmount: null,
-  swapRatio: null,
-  sourceLoading: false,
-  targetLoading: false,
-  error: null,
-};
-
-type Action =
-  | { type: "SET_USD_AMOUNT"; payload: string }
-  | { type: "SET_SOURCE_TOKEN"; payload: TokenType }
-  | { type: "SET_TARGET_TOKEN"; payload: TokenType }
-  | { type: "FETCH_SOURCE_START" }
-  | {
-      type: "FETCH_SOURCE_SUCCESS";
-      payload: {
-        sourceTokenInfo: Erc20AssetInfo;
-        sourcePriceInfo: GetAssetPriceInfoResponse;
-      };
-    }
-  | { type: "FETCH_TARGET_START" }
-  | {
-      type: "FETCH_TARGET_SUCCESS";
-      payload: {
-        targetTokenInfo: Erc20AssetInfo;
-        targetPriceInfo: GetAssetPriceInfoResponse;
-      };
-    }
-  | { type: "ERROR"; payload: string }
-  | { type: "CLEAR_RESULT_AMOUNTS" };
-
 export default function Home() {
-  const reducer = (state: State, action: Action) => {
-    switch (action.type) {
-      case "SET_USD_AMOUNT":
-        return { ...state, usdAmount: action.payload };
-      case "SET_SOURCE_TOKEN":
-        return { ...state, sourceToken: action.payload };
-      case "SET_TARGET_TOKEN":
-        return { ...state, targetToken: action.payload };
-
-      case "FETCH_SOURCE_START":
-        return {
-          ...state,
-          sourceLoading: true,
-          error: null,
-        };
-
-      case "FETCH_SOURCE_SUCCESS":
-        const usdValueSource = parseFloat(state.usdAmount) || 0;
-        const newSourceTokenAmount =
-          usdValueSource / action.payload.sourcePriceInfo.unitPrice;
-        const newSwapRatio = state.targetPriceInfo
-          ? action.payload.sourcePriceInfo.unitPrice /
-            state.targetPriceInfo.unitPrice
-          : null;
-
-        return {
-          ...state,
-          sourceTokenInfo: action.payload.sourceTokenInfo,
-          sourcePriceInfo: action.payload.sourcePriceInfo,
-          sourceTokenAmount: newSourceTokenAmount,
-          swapRatio: newSwapRatio,
-          sourceLoading: false,
-          error: null,
-        };
-
-      case "FETCH_TARGET_START":
-        return {
-          ...state,
-          targetLoading: true,
-          error: null,
-        };
-
-      case "FETCH_TARGET_SUCCESS":
-        const usdValueTarget = parseFloat(state.usdAmount) || 0;
-        const newTargetTokenAmount =
-          usdValueTarget / action.payload.targetPriceInfo.unitPrice;
-        const newSwapRatioTarget = state.sourcePriceInfo
-          ? state.sourcePriceInfo.unitPrice /
-            action.payload.targetPriceInfo.unitPrice
-          : null;
-
-        return {
-          ...state,
-          targetTokenInfo: action.payload.targetTokenInfo,
-          targetPriceInfo: action.payload.targetPriceInfo,
-          targetTokenAmount: newTargetTokenAmount,
-          swapRatio: newSwapRatioTarget,
-          targetLoading: false,
-          error: null,
-        };
-
-      case "ERROR":
-        return {
-          ...state,
-          sourceLoading: false,
-          targetLoading: false,
-          error: action.payload,
-        };
-
-      case "CLEAR_RESULT_AMOUNTS":
-        return {
-          ...state,
-          sourceTokenAmount: null,
-          targetTokenAmount: null,
-        };
-
-      default:
-        return state;
-    }
-  };
-
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const fetchSourceToken = useCallback(async (token: TokenType) => {
     dispatch({ type: "FETCH_SOURCE_START" });
 
     try {
-      const sourceTokenInfo = await getAssetErc20ByChainAndSymbol({
-        chainId: token.chainId,
-        symbol: token.symbol,
-        apiKey: API_KEY,
-      });
-
-      const sourcePriceInfo = await getAssetPriceInfo({
-        chainId: token.chainId,
-        assetTokenAddress: sourceTokenInfo.address,
-        apiKey: API_KEY,
-      });
+      const { tokenInfo, priceInfo } = await getTokenData(token);
 
       dispatch({
         type: "FETCH_SOURCE_SUCCESS",
         payload: {
-          sourceTokenInfo,
-          sourcePriceInfo,
+          tokenInfo,
+          priceInfo,
         },
       });
     } catch (error) {
@@ -219,23 +64,13 @@ export default function Home() {
     dispatch({ type: "FETCH_TARGET_START" });
 
     try {
-      const targetTokenInfo = await getAssetErc20ByChainAndSymbol({
-        chainId: token.chainId,
-        symbol: token.symbol,
-        apiKey: API_KEY,
-      });
-
-      const targetPriceInfo = await getAssetPriceInfo({
-        chainId: token.chainId,
-        assetTokenAddress: targetTokenInfo.address,
-        apiKey: API_KEY,
-      });
+      const { tokenInfo, priceInfo } = await getTokenData(token);
 
       dispatch({
         type: "FETCH_TARGET_SUCCESS",
         payload: {
-          targetTokenInfo,
-          targetPriceInfo,
+          tokenInfo,
+          priceInfo,
         },
       });
     } catch (error) {
@@ -279,14 +114,14 @@ export default function Home() {
         return;
       }
 
-      debouncedFetchBothTokens(state.sourceToken, state.targetToken);
+      debouncedFetchBothTokens(state.source.token, state.target.token);
     },
-    [debouncedFetchBothTokens, state.sourceToken, state.targetToken]
+    [debouncedFetchBothTokens, state.source?.token, state.target?.token]
   );
 
   useEffect(() => {
-    fetchSourceToken(initialState.sourceToken);
-    fetchTargetToken(initialState.targetToken);
+    fetchSourceToken(initialState.source.token);
+    fetchTargetToken(initialState.target.token);
   }, [fetchSourceToken, fetchTargetToken]);
 
   return (
@@ -304,7 +139,7 @@ export default function Home() {
         className={`${styles.page} ${geistSans.variable} ${geistMono.variable}`}
       >
         <main className={styles.main}>
-          <Card title="Token Conversation Explorer">
+          <Card title="Token Price Explorer">
             <USDInput
               value={state.usdAmount}
               onChange={handleUsdAmountChange}
@@ -312,10 +147,10 @@ export default function Home() {
             <TokenRow
               ariaLabel="Source token"
               placeholder="Source token"
-              selectedToken={state.sourceToken}
-              tokenAmount={state.sourceTokenAmount}
-              unitPrice={state.sourcePriceInfo?.unitPrice}
-              isLoading={state.sourceLoading}
+              selectedToken={state.source.token}
+              tokenAmount={state.source.amount}
+              unitPrice={state.source.priceInfo?.unitPrice}
+              isLoading={state.source.loading}
               onTokenChange={handleSourceTokenChange}
             />
             <div className={styles.separator}>
@@ -326,13 +161,14 @@ export default function Home() {
             <TokenRow
               ariaLabel="Target token"
               placeholder="Target token"
-              selectedToken={state.targetToken}
-              tokenAmount={state.targetTokenAmount}
-              unitPrice={state.targetPriceInfo?.unitPrice}
-              isLoading={state.targetLoading}
+              selectedToken={state.target.token}
+              tokenAmount={state.target.amount}
+              unitPrice={state.target.priceInfo?.unitPrice}
+              isLoading={state.target.loading}
               onTokenChange={handleTargetTokenChange}
             />
           </Card>
+          {state.error && <p className={styles.error}>{state.error}</p>}
         </main>
       </div>
     </>

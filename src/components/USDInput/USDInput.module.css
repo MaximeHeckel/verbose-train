@@ -1,0 +1,55 @@
+.numberInputWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-direction: row;
+  gap: 8px;
+  padding-left: 8px;
+  padding-bottom: 8px;
+  color: var(--asset-color);
+
+  label {
+    cursor: pointer;
+    display: flex;
+  }
+
+  input {
+    padding: 8px 12px;
+    margin: 8px 0;
+    width: 100%;
+    font-size: 20px;
+    font-weight: 500;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    border-radius: 12px;
+    border: none;
+    background-color: var(--card-foreground);
+    color: white;
+    outline: none;
+    border: 2px solid transparent;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    appearance: textfield;
+    -moz-appearance: textfield;
+    transition: background-color 0.2s ease-in-out;
+
+    &::placeholder {
+      text-align: right;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--asset-color);
+    }
+
+    &:focus-visible {
+      border: 2px solid var(--accent-color);
+    }
+
+    &[data-error="true"] {
+      border: 2px solid red;
+    }
+  }
+}

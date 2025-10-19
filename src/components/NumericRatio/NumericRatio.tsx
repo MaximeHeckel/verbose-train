@@ -1,4 +1,4 @@
-import styles from "@/styles/Home.module.css";
+import styles from "./NumericRatio.module.css";
 import { formatTokenPrice } from "@/utils";
 
 interface NumericRatioProps {

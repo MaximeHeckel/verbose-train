@@ -1,0 +1,21 @@
+.numericResult {
+  font-family: var(--font-geist-mono);
+  color: #ffffff;
+  font-size: 36px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-height: 47px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
+
+  &[data-loading="true"] {
+    opacity: 0.2;
+    transform: scale(0.95);
+  }
+}

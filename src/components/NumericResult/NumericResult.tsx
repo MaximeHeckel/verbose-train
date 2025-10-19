@@ -1,4 +1,4 @@
-import styles from "@/styles/Home.module.css";
+import styles from "./NumericResult.module.css";
 import { calculateFontSize, formatTokenPrice } from "@/utils";
 
 interface NumericResultProps {

@@ -1,4 +1,4 @@
-import styles from "@/styles/Home.module.css";
+import styles from "./USDInput.module.css";
 import { IconDollarSign } from "@/components/Icons";
 
 interface USDInputProps {
@@ -9,19 +9,18 @@ interface USDInputProps {
 const INVALID_CHARACTERS = ["e", "E", "-", "+"];
 
 export const USDInput = ({ value, onChange }: USDInputProps) => {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    console.log("newValue", newValue);
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.value;
 
     onChange(newValue);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     // Block 'e', 'E', '-', and '+' which are technically allowed here
     // but can let users type invalid numbers
-    if (INVALID_CHARACTERS.includes(e.key)) {
-      console.error(`Invalid character blocked: "${e.key}"`);
-      e.preventDefault();
+    if (INVALID_CHARACTERS.includes(event.key)) {
+      console.error(`Invalid character blocked: "${event.key}"`);
+      event.preventDefault();
     }
   };
 
@@ -34,6 +33,7 @@ export const USDInput = ({ value, onChange }: USDInputProps) => {
         id="usd-amount"
         type="number"
         min="0.000001"
+        max="999999999999"
         step="any"
         placeholder="Enter USD amount"
         value={value}

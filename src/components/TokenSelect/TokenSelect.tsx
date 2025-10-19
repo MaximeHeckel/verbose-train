@@ -1,15 +1,7 @@
 import * as Select from "@radix-ui/react-select";
-import styles from "@/styles/Home.module.css";
-import { IconChevronDown } from "./Icons";
-
-export type TokenType = { name: string; symbol: string; chainId: string };
-
-export const TOKEN_LIST = [
-  { name: "ETH", symbol: "ETH", chainId: "8453" },
-  { name: "USDC", symbol: "USDC", chainId: "1" },
-  { name: "USDT", symbol: "USDT", chainId: "137" },
-  { name: "WBTC", symbol: "WBTC", chainId: "1" },
-];
+import styles from "./TokenSelect.module.css";
+import { IconChevronDown } from "../Icons";
+import { TOKEN_LIST } from "@/constants";
 
 interface TokenSelectProps {
   value: string;
@@ -26,19 +18,19 @@ export const TokenSelect = ({
 }: TokenSelectProps) => {
   return (
     <Select.Root value={value} onValueChange={onChange}>
-      <Select.Trigger aria-label={ariaLabel} className={styles.SelectTrigger}>
+      <Select.Trigger aria-label={ariaLabel} className={styles.selectTrigger}>
         <Select.Value placeholder={placeholder} />
-        <Select.Icon className={styles.SelectIcon}>
+        <Select.Icon className={styles.selectIcon}>
           <IconChevronDown />
         </Select.Icon>
       </Select.Trigger>
-      <Select.Content className={styles.SelectContent}>
-        <Select.Viewport className={styles.SelectViewport}>
+      <Select.Content className={styles.selectContent}>
+        <Select.Viewport className={styles.selectViewport}>
           {TOKEN_LIST.map((token) => (
             <Select.Item
               key={token.symbol}
               value={token.symbol}
-              className={styles.SelectItem}
+              className={styles.selectItem}
             >
               <Select.ItemText>{token.name}</Select.ItemText>
             </Select.Item>
