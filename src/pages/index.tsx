@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 
 import styles from "@/styles/Home.module.css";
 import { useCallback, useEffect, useMemo, useReducer } from "react";
-import { TokenType } from "@/components/TokenSelect";
+
 import { IconSwap } from "@/components/Icons";
 import { USDInput } from "@/components/USDInput";
 import { TokenRow } from "@/components/TokenRow";
@@ -11,6 +11,7 @@ import debounce from "lodash/debounce";
 import Card from "@/components/Card";
 import { initialState, reducer } from "@/state";
 import { getTokenData } from "@/api";
+import { TokenType } from "@/types";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

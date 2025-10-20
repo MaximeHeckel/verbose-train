@@ -2,7 +2,7 @@ import {
   getAssetErc20ByChainAndSymbol,
   getAssetPriceInfo,
 } from "@funkit/api-base";
-import { TokenType } from "./components/TokenSelect";
+import { TokenType } from "./types";
 
 const API_KEY = process.env.NEXT_PUBLIC_FUNKIT_API_KEY as string;
 
