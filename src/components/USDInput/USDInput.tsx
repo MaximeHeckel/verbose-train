@@ -19,7 +19,6 @@ export const USDInput = ({ value, onChange }: USDInputProps) => {
     // Block 'e', 'E', '-', and '+' which are technically allowed here
     // but can let users type invalid numbers
     if (INVALID_CHARACTERS.includes(event.key)) {
-      console.error(`Invalid character blocked: "${event.key}"`);
       event.preventDefault();
     }
   };

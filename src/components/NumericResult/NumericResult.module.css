@@ -12,10 +12,12 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
+  transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out,
+    filter 0.25s ease-in-out;
 
   &[data-loading="true"] {
-    opacity: 0.2;
+    opacity: 0.3;
+    filter: blur(4px);
     transform: scale(0.95);
   }
 }
